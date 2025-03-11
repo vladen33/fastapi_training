@@ -1,7 +1,7 @@
 from enum import Enum
 from typing import Optional
 
-from fastapi import FastAPI
+from fastapi import FastAPI, Path, Query
 
 app = FastAPI()
 
@@ -18,12 +18,19 @@ def hello_author():
     return {'Hello': 'author'}
 
 
-@app.get('/{name}', tags=['common methods'], summary='Общее приветствие')
+@app.get(
+    '/{name}',
+    tags=['common methods'],
+    summary='Общее приветствие',
+    response_description='Полная строка приветствия'
+)
 def greetings(
         *,
-        name: str,
-        surname: str,
-        age: Optional[int] = None,
+        # У параметров запроса name и surname значений по умолчанию нет,
+        # поэтому в первый параметр ставим многоточие, Ellipsis.
+        name: str = Path(..., min_length=2, max_length=20),
+        surname: str = Query(..., min_length=2, max_length=50),
+        age: Optional[int] = Query(None, ge=5, le=99),
         is_staff: bool = False,
         education_level: Optional[EducationLevel] = None,
 ) -> dict[str, str]:
