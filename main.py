@@ -1,16 +1,45 @@
-# This is a sample Python script.
+from enum import Enum
+from typing import Optional
 
-# Press Shift+F10 to execute it or replace it with your code.
-# Press Double Shift to search everywhere for classes, files, tool windows, actions, and settings.
+from fastapi import FastAPI
+
+app = FastAPI()
+
+class EducationLevel(str, Enum):
+    # Укажем значения с большой буквы, чтобы они хорошо смотрелись
+    # в документации Swagger.
+    SECONDARY = 'Среднее образование'
+    SPECIAL = 'Среднее специальное образование'
+    HIGHER = 'Высшее образование'
 
 
-def print_hi(name):
-    # Use a breakpoint in the code line below to debug your script.
-    print(f'Hi, {name}')  # Press Ctrl+F8 to toggle the breakpoint.
+@app.get('/me', tags=['special methods'], summary='Приветствие автора')
+def hello_author():
+    return {'Hello': 'author'}
 
 
-# Press the green button in the gutter to run the script.
-if __name__ == '__main__':
-    print_hi('PyCharm')
+@app.get('/{name}', tags=['common methods'], summary='Общее приветствие')
+def greetings(
+        *,
+        name: str,
+        surname: str,
+        age: Optional[int] = None,
+        is_staff: bool = False,
+        education_level: Optional[EducationLevel] = None,
+) -> dict[str, str]:
+    """
+    Приветствие пользователя:
 
-# See PyCharm help at https://www.jetbrains.com/help/pycharm/
+    - **name**: имя
+    - **surname**: фамилия
+    - **age**: возраст (опционально)
+    - **is_staff**: является ли пользователь сотрудником
+    - **education_level**: уровень образования (опционально)
+    """
+    result = ' '.join([name, surname])
+    result = result.title()
+    if age is not None:
+        result += ', ' + str(age)
+    if is_staff:
+        result += ', сотрудник'
+    return {'Hello': result}
