@@ -1,40 +1,13 @@
 # main.py
-from enum import Enum
-from typing import Optional, Union
-
 from fastapi import FastAPI
-# Для работы с JSON в теле запроса
-# импортируем из pydantic класс BaseModel
-from pydantic import BaseModel
+
+from .schemas import Person
 
 app = FastAPI()
 
 
-class EducationLevel(str, Enum):
-    SECONDARY = 'Среднее образование'
-    SPECIAL = 'Среднее специальное образование'
-    HIGHER = 'Высшее образование'
-
-
-# Создадим класс Person, унаследованный от BaseModel;
-# в атрибутах класса перечислим ожидаемые параметры запроса.
-# Аннотируем атрибуты класса.
-class Person(BaseModel):
-    name: str
-    surname: Union[str, list[str]]
-    age: Optional[int]
-    is_staff: bool = False
-    education_level: Optional[EducationLevel]
-
-
-# Меняем метод GET на POST, указываем статичный адрес.
 @app.post('/hello')
-# Вместо множества параметров теперь будет только один - person,
-# в качестве аннотации указываем класс Person.
 def greetings(person: Person) -> dict[str, str]:
-    # Обращение к атрибутам класса происходит через точку;
-    # при этом будут работать проверки на уровне типов данных.
-    # В IDE будут работать автодополнения.
     if isinstance(person.surname, list):
         surnames = ' '.join(person.surname)
     else:
