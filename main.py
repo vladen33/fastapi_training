@@ -1,6 +1,6 @@
 # main.py
 from enum import Enum
-from typing import Optional
+from typing import Optional, Union
 
 from fastapi import FastAPI
 # Для работы с JSON в теле запроса
@@ -21,7 +21,7 @@ class EducationLevel(str, Enum):
 # Аннотируем атрибуты класса.
 class Person(BaseModel):
     name: str
-    surname: list[str]
+    surname: Union[str, list[str]]
     age: Optional[int]
     is_staff: bool = False
     education_level: Optional[EducationLevel]
@@ -35,7 +35,10 @@ def greetings(person: Person) -> dict[str, str]:
     # Обращение к атрибутам класса происходит через точку;
     # при этом будут работать проверки на уровне типов данных.
     # В IDE будут работать автодополнения.
-    surnames = ' '.join(person.surname)
+    if isinstance(person.surname, list):
+        surnames = ' '.join(person.surname)
+    else:
+        surnames = person.surname
     result = ' '.join([person.name, surnames])
     result = result.title()
     if person.age is not None:
